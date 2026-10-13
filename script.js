@@ -61,15 +61,34 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // ===== Interaksi 3: Animated counter (pengulangan) =====
 function animateCounter(el) {
-  const target = Number(el.dataset.target);
+  const targetStr = el.dataset.target;
+  const target = parseFloat(targetStr);
+  const isDecimal = targetStr.includes('.');
+  const suffix = el.dataset.suffix || '';
   const steps = 60;
   let step = 0;
+  
   const timer = setInterval(() => {
     step++;
-    el.textContent = Math.round(target * step / steps).toLocaleString('id-ID');
-    if (step >= steps) clearInterval(timer);
+    const current = target * step / steps;
+    
+    if (isDecimal) {
+      el.textContent = current.toFixed(1).replace('.', ',') + suffix;
+    } else {
+      el.textContent = Math.round(current).toLocaleString('id-ID') + suffix;
+    }
+    
+    if (step >= steps) {
+      if (isDecimal) {
+        el.textContent = targetStr.replace('.', ',') + suffix;
+      } else {
+        el.textContent = Math.round(target).toLocaleString('id-ID') + suffix;
+      }
+      clearInterval(timer);
+    }
   }, 25);
 }
+
 const counterObserver = new IntersectionObserver((entries, obs) => {
   entries.forEach(en => { if (en.isIntersecting) { animateCounter(en.target); obs.unobserve(en.target); } });
 }, { threshold: 0.4 });
